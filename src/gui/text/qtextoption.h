@@ -134,6 +134,21 @@ public:
     void setUseDesignMetrics(bool b) { design = b; }
     bool useDesignMetrics() const { return design; }
 
+    int subSupMinimalPointSize() const { return subSupMinPtSize; }
+    void setSubSupMinimalPointSize(int size) {subSupMinPtSize = size; }
+
+    int subSupMinimalPixelSize() const { return subSupMinPxSize; }
+    void setSubSupMinimalPixelSize(int size) { subSupMinPxSize = size; }
+
+    int subMinimalBaselineOffset() const { return subMinBaselineOffset; }
+    void setSubMinimalBaselineOffset(int offset) { subMinBaselineOffset = offset; }
+
+    int supMinimalBaselineOffset() const { return supMinBaselineOffset; }
+    void setSupMinimalBaselineOffset(int offset) { supMinBaselineOffset = offset; }
+
+    bool shouldKeepSubSupInsideLine() const { return subSupInLine; }
+    void setShouldKeepSubSupInsideLine(bool keepInside) { subSupInLine = keepInside; }
+
 private:
     uint align : 8;
     uint wordWrap : 4;
@@ -144,6 +159,13 @@ private:
     uint f;
     qreal tab;
     QTextOptionPrivate *d;
+
+    //DQt extension
+    int subSupMinPtSize;        ///< minimal size of font used for subscript and superscript in Pt
+    int subSupMinPxSize;        ///< minimal size of font used for subscript and superscript in pixels
+    int subMinBaselineOffset;   ///< minimal offset of baseline when drawing subscript
+    int supMinBaselineOffset;   ///< minimal offset of baseline when drawing superscript
+    bool subSupInLine;          ///< Uses smart positioning of sub/super/scripts baseline to minimize exceeding of line boundaries.
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextOption::Flags)

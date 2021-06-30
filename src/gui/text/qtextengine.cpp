@@ -2444,10 +2444,14 @@ QFont QTextEngine::font(const QScriptItem &si) const
         }
         QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
         if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+            // Smaller font should be big enough to be readable, but also should never be bigger than "normal" font.
+            // If even the normal font is to small to be readable, subscript or superscript readability is not important anymore.
+            int minimalFontSize = font.pointSize() != -1 ? qMin(option.subSupMinimalPointSize(), font.pointSize())
+                                                         : qMin(option.subSupMinimalPixelSize(), font.pixelSize());
             if (font.pointSize() != -1)
-                font.setPointSize((font.pointSize() * 2) / 3);
+                font.setPointSize(qMax(minimalFontSize, (font.pointSize() * 2) / 3));
             else
-                font.setPixelSize((font.pixelSize() * 2) / 3);
+                font.setPixelSize(qMax(minimalFontSize, (font.pixelSize() * 2) / 3));
         }
     }
 
@@ -2525,10 +2529,14 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
 
                 QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
                 if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+                    // Smaller font should be big enough to be readable, but also should never be bigger than "normal" font.
+                    // If even the normal font is to small to be readable, subscript or superscript readability is not important anymore.
+                    int minimalFontSize = font.pointSize() != -1 ? qMin(option.subSupMinimalPointSize(), font.pointSize())
+                                                                 : qMin(option.subSupMinimalPixelSize(), font.pixelSize());
                     if (font.pointSize() != -1)
-                        font.setPointSize((font.pointSize() * 2) / 3);
+                        font.setPointSize(qMax(minimalFontSize, (font.pointSize() * 2) / 3));
                     else
-                        font.setPixelSize((font.pixelSize() * 2) / 3);
+                        font.setPixelSize(qMax(minimalFontSize, (font.pixelSize() * 2) / 3));
                     scaledEngine = font.d->engineForScript(script);
                     if (scaledEngine)
                         scaledEngine->ref.ref();

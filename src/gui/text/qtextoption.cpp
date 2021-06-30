@@ -62,7 +62,12 @@ QTextOption::QTextOption()
       unused2(0),
       f(0),
       tab(-1),
-      d(nullptr)
+      d(nullptr),
+      subSupMinPtSize(7),
+      subSupMinPxSize(11),
+      subMinBaselineOffset(1),
+      supMinBaselineOffset(3),
+      subSupInLine(true)
 {
     direction = Qt::LayoutDirectionAuto;
 }
@@ -80,7 +85,12 @@ QTextOption::QTextOption(Qt::Alignment alignment)
       unused2(0),
       f(0),
       tab(-1),
-      d(nullptr)
+      d(nullptr),
+      subSupMinPtSize(7),
+      subSupMinPxSize(11),
+      subMinBaselineOffset(1),
+      supMinBaselineOffset(3),
+      subSupInLine(true)
 {
     direction = QGuiApplication::layoutDirection();
 }
@@ -107,7 +117,12 @@ QTextOption::QTextOption(const QTextOption &o)
       unused2(o.unused2),
       f(o.f),
       tab(o.tab),
-      d(nullptr)
+      d(nullptr),
+      subSupMinPtSize(o.subSupMinPtSize),
+      subSupMinPxSize(o.subSupMinPxSize),
+      subMinBaselineOffset(o.subMinBaselineOffset),
+      supMinBaselineOffset(o.supMinBaselineOffset),
+      subSupInLine(o.subSupInLine)
 {
     if (o.d)
         d = new QTextOptionPrivate(*o.d);
@@ -137,6 +152,11 @@ QTextOption &QTextOption::operator=(const QTextOption &o)
     unused = o.unused;
     f = o.f;
     tab = o.tab;
+    subSupMinPtSize = o.subSupMinPtSize;
+    subSupMinPxSize = o.subSupMinPxSize;
+    subMinBaselineOffset = o.subMinBaselineOffset;
+    supMinBaselineOffset = o.supMinBaselineOffset;
+    subSupInLine = o.subSupInLine;
     return *this;
 }
 
@@ -216,6 +236,12 @@ QList<QTextOption::Tab> QTextOption::tabs() const
     object. It contains information about text alignment, layout direction,
     word wrapping, and other standard properties associated with text rendering
     and layout.
+
+    Dlubal Qt extension allows to define the minimal font size considered as readable.
+    Standard Qt behavior can result into really small fonts for subscript or superscript text.
+    Smaller font should be big enough to be readable, but also should never be bigger than basic font.
+    If even the  basic font is to small to be readable, subscript or superscript readability is not important anymore
+    and the minimal font size is ignored.
 
     \sa QTextEdit, QTextDocument, QTextCursor
 */
@@ -372,6 +398,95 @@ QList<QTextOption::Tab> QTextOption::tabs() const
   by \a tabStopDistance.
 
   \sa tabStopDistance(), setTabArray(), setTabs(), tabs()
+*/
+
+/*!
+  \fn int subSupMinimalPointSize() const
+
+  Returns the minimal size in points for the font used for subscript or superscript text.
+  Applied only if the resulting subscript or superscript text is not bigger than basic text.
+
+  \sa setSubSupMinimalPointSize(), subSupMinimalPixelSize(), setSubSupMinimalPixelSize()
+*/
+
+/*!
+  \fn void setSubSupMinimalPointSize(int size)
+
+  Sets the minimal size in points for the font used for subscript or superscript text to the value specified
+  by \a size.
+
+  \sa subSupMinimalPointSize(), subSupMinimalPixelSize(), setSubSupMinimalPixelSize()
+*/
+
+/*!
+  \fn int subSupMinimalPixelSize() const
+
+  Returns the minimal size in pixels for the font used for subscript or superscript text.
+  Applied only if the resulting subscript or superscript text is not bigger than basic text.
+
+  \sa subSupMinimalPointSize(), setSubSupMinimalPointSize(), setSubSupMinimalPixelSize()
+*/
+
+/*!
+  \fn void setSubSupMinimalPixelSize(int size)
+
+  Sets the minimal size in pixels for the font used for subscript or superscript text to the value specified
+
+by \a size.
+
+  \sa subSupMinimalPointSize(), setSubSupMinimalPointSize(), subSupMinimalPixelSize()
+*/
+
+/*!
+  \fn int subMinimalBaselineOffset() const
+
+  Returns the minimal baseline offset applied to subscript text. Applied even if the resulting subscript text
+  exceeds line bottom boundary.
+
+  \sa shouldKeepSubSupInsideLine(), setSubMinimalBaselineOffset()
+*/
+
+/*!
+  \fn void setSubMinimalBaselineOffset(int offset)
+
+  Sets the minimal baseline offset applied to subscript text. Applied even if the resulting subscript text
+  exceeds line bottom boundary.
+
+  \sa shouldKeepSubSupInsideLine(), subMinimalBaselineOffset()
+*/
+
+/*!
+  \fn int supMinimalBaselineOffset() const
+
+  Returns the minimal baseline offset applied to superscript text. Applied even if the resulting  superscript text
+  exceeds line bottom boundary.
+
+  \sa shouldKeepSubSupInsideLine(), setSupMinimalBaselineOffset()
+*/
+
+/*!
+  \fn void setSupMinimalBaselineOffset(int offset)
+
+  Sets the minimal baseline offset applied to superscript text. Applied even if the resulting  superscript text
+  exceeds line bottom boundary.
+
+  \sa shouldKeepSubSupInsideLine(), supMinimalBaselineOffset()
+*/
+
+/*!
+  \fn bool shouldKeepSubSupInsideLine() const
+
+  Returns true if the subscript or superscript text should not exceed the line top or bottom boundary.
+
+  \sa setShouldKeepSubSupInsideLine(), subMinimalBaselineOffset(), setSubMinimalBaselineOffset(), supMinimalBaselineOffset(), setSupMinimalBaselineOffset()
+*/
+
+/*!
+  \fn void setShouldKeepSubSupInsideLine(bool keepInside)
+
+  If \keepInside is true, the subscript or superscript text should not exceed the line top or bottom boundary.
+
+  \sa shouldKeepSubSupInsideLine(), subMinimalBaselineOffset(), setSubMinimalBaselineOffset(), supMinimalBaselineOffset(), setSupMinimalBaselineOffset()
 */
 
 /*!

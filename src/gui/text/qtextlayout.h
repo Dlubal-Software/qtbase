@@ -281,6 +281,9 @@ private:
     friend class QTextFragment;
     int index;
     QTextEngine *eng;
+
+    qreal calculateSubscriptBaselineOffset(const QFont& basicFont, const QFont& subscriptFont) const;
+    qreal calculateSuperscriptBaselineOffset(const QFont& basicFont, const QFont& superscriptFont) const;
 };
 
 QT_END_NAMESPACE

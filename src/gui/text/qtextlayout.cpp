@@ -2574,12 +2574,10 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
             QTextCharFormat::VerticalAlignment valign = format.verticalAlignment();
             if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
-                QFontEngine *fe = f.d->engineForScript(si.analysis.script);
-                QFixed height = fe->ascent() + fe->descent();
                 if (valign == QTextCharFormat::AlignSubScript)
-                    itemBaseLine += height / 6;
+                    itemBaseLine += QFixed::fromReal(calculateSubscriptBaselineOffset(format.font(), f));
                 else if (valign == QTextCharFormat::AlignSuperScript)
-                    itemBaseLine -= height / 2;
+                    itemBaseLine -= QFixed::fromReal(calculateSuperscriptBaselineOffset(format.font(), f));
             }
         }
 
@@ -2720,6 +2718,51 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
     if (eng->hasFormats())
         p->setPen(pen);
 }
+
+qreal QTextLine::calculateSubscriptBaselineOffset(const QFont& basicFont, const QFont& subscriptFont) const
+{
+    QFontMetrics subscriptMetrics(subscriptFont);
+
+    if (!eng->option.shouldKeepSubSupInsideLine())
+    {
+        // Use original Qt algorithm using only subscript font size
+        int height = subscriptMetrics.ascent() + subscriptMetrics.descent();
+        return height / 6.0;
+    }
+    else
+    {
+        QFontMetrics basicFontMetrics(basicFont);
+        int basicDescent = basicFontMetrics.descent();
+        int subscriptDescent = subscriptMetrics.descent();
+
+        int optimalBaselineOffset = basicDescent - subscriptDescent;
+
+        return qMax(optimalBaselineOffset, eng->option.subMinimalBaselineOffset());
+    }
+}
+
+qreal QTextLine::calculateSuperscriptBaselineOffset(const QFont& basicFont, const QFont& superscriptFont) const
+{
+    QFontMetrics superscriptMetrics(superscriptFont);
+
+    if (!eng->option.shouldKeepSubSupInsideLine())
+    {
+        // Use original Qt algorithm using only superscript font size
+        int height = superscriptMetrics.ascent() + superscriptMetrics.descent();
+        return (height / 2.0);
+    }
+    else
+    {
+        QFontMetrics basicFontMetrics(basicFont);
+        int basicAscent = basicFontMetrics.ascent();
+        int superscriptAscent = superscriptMetrics.ascent();
+
+        int optimalBaselineOffset = basicAscent - superscriptAscent;
+
+        return qMax(optimalBaselineOffset, eng->option.supMinimalBaselineOffset());
+    }
+}
+
 
 /*!
     \fn int QTextLine::cursorToX(int cursorPos, Edge edge) const
